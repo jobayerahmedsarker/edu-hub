@@ -583,6 +583,8 @@ img { max-width: 100%; display: block; }
   .hero-stats { padding: 16px; gap: 20px; width: 100%; }
   .class-actions-bottom .btn { flex: 1 1 100%; }
   .profile-head { flex-direction: row; text-align: left; }
+  .nav-item { padding: 6px 8px; font-size: 10px; }
+  .nav-item i { font-size: 18px; }
 }
 .me{
   font-family: 'Times New Roman', Times, serif;
@@ -789,6 +791,7 @@ img { max-width: 100%; display: block; }
   <button class="nav-item active" data-view="home" onclick="navigate('home')"><i class="fas fa-home"></i> Home</button>
   <button class="nav-item" data-view="bookmarks" onclick="navigate('bookmarks')"><i class="fas fa-bookmark"></i> Saved</button>
   <button class="nav-item" data-view="guides" onclick="navigate('guides')"><i class="fas fa-book"></i> Guides</button>
+  <button class="nav-item" data-view="requests" onclick="navigate('requests')"><i class="fas fa-paper-plane"></i> Request</button>
   <button class="nav-item" data-view="profile" onclick="navigate('profile')"><i class="fas fa-user"></i> Profile</button>
 </nav>
 
@@ -1455,30 +1458,49 @@ async function loadGuides() {
   }).join('');
 }
 
+/* ═══════════════ REQUEST SUBMISSION & LISTING (FIXED) ═══════════════ */
 async function submitRequest(e) {
   e.preventDefault();
   const type = document.getElementById('reqType').value;
   const subject = document.getElementById('reqSubject').value.trim();
   const desc = document.getElementById('reqDesc').value.trim();
-  if (!subject) return toast('Enter subject / chapter', 'error');
-  const { data } = await sb.rpc('user_submit_request', { p_token: state.token, p_type: type, p_subject: subject, p_desc: desc });
-  if (!data || data.error) return toast(data?.error || 'Failed', 'error');
-  toast('Request sent!', 'success');
-  document.getElementById('reqSubject').value = ''; document.getElementById('reqDesc').value = '';
+  
+  if (!subject) return toast('Enter subject / chapter name', 'error');
+
+  // RPC কল করা হচ্ছে (SQL ফাংশনের সাথে মিল রেখে)
+  const { data, error } = await sb.rpc('user_submit_request', { 
+    p_token: state.token, 
+    p_type: type, 
+    p_subject: subject, 
+    p_desc: desc 
+  });
+
+  if (error || data?.error) return toast(data?.error || error?.message || 'Failed', 'error');
+  
+  toast('Request sent successfully!', 'success');
+  document.getElementById('reqSubject').value = ''; 
+  document.getElementById('reqDesc').value = '';
   loadMyRequests();
 }
 
 async function loadMyRequests() {
   const list = document.getElementById('myRequestsList');
   list.innerHTML = '<p style="color:var(--text-2)">Loading...</p>';
-  const { data } = await sb.rpc('user_list_requests', { p_token: state.token });
-  if (!Array.isArray(data) || !data.length) { list.innerHTML = '<p style="color:var(--text-2)">No requests yet.</p>'; return; }
+  
+  const { data, error } = await sb.rpc('user_list_requests', { p_token: state.token });
+  
+  if (error || !Array.isArray(data) || !data.length) { 
+    list.innerHTML = '<p style="color:var(--text-2)">No requests yet.</p>'; 
+    return; 
+  }
+  
   list.innerHTML = data.map(r => {
     const c = { pending: 'var(--warning)', processing: 'var(--info)', resolved: 'var(--success)', rejected: 'var(--danger)' }[r.status] || 'var(--text-2)';
     return `
       <div class="notif-card" style="border-left-color:${c}">
         <div class="notif-content">
           <h4>${escapeHtml(r.subject_name || '—')} <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.06);color:${c};margin-left:6px;text-transform:uppercase;">${escapeHtml(r.status)}</span></h4>
+          <p>Type: ${escapeHtml(r.request_type || 'N/A')}</p>
           <p>${escapeHtml(r.description || '—')}</p>
           ${r.admin_response ? `<p style="margin-top:4px;color:var(--accent-2);font-size:12px"><strong>Admin:</strong> ${escapeHtml(r.admin_response)}</p>` : ''}
         </div>
