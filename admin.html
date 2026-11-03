@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0B1120" />
+<title>Admin Portal — Education Hub</title>
+
+<script>
+(function(){try{var t=localStorage.getItem('eh-theme')||'dark';document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+
+<style>
+/* ═══════════════ NAVY & BLUE THEME ═══════════════ */
+:root {
+  --bg-1: #0B1120;
+  --bg-2: #111827;
+  --bg-card: rgba(30, 41, 59, 0.65);
+  --bg-card-solid: #111827;
+  --bg-elevated: rgba(30, 41, 59, 0.8);
+
+  --accent-1: #38BDF8; /* Sky Blue */
+  --accent-2: #3B82F6; /* Blue */
+  --primary: #2563EB;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #0EA5E9;
+
+  --text-1: #F8FAFC;
+  --text-2: #94A3B8;
+  --text-3: #64748B;
+
+  --border: rgba(148, 163, 184, 0.12);
+  --border-strong: rgba(148, 163, 184, 0.25);
+
+  --grad: linear-gradient(135deg, #38BDF8, #2563EB);
+  --grad-btn: linear-gradient(135deg, #3B82F6, #2563EB);
+  
+  --font-bn: 'Hind Siliguri', system-ui, sans-serif;
+  --font-en: 'Inter', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  
+  --trans: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --glass: blur(20px) saturate(180%);
+  --shadow-glow-blue: 0 4px 20px rgba(37, 99, 235, 0.3);
+}
+
+[data-theme="light"] {
+  --bg-1: #F8FAFC;
+  --bg-2: #FFFFFF;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-solid: #FFFFFF;
+  --bg-elevated: #F1F5F9;
+  --text-1: #0F172A;
+  --text-2: #475569;
+  --text-3: #94A3B8;
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.16);
+  --shadow-glow-blue: 0 4px 20px rgba(37, 99, 235, 0.15);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{overflow-x:hidden;max-width:100vw;}
+html { font-size: 15px; }
+body{font-family:var(--font-bn);background:var(--bg-1);color:var(--text-1);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .3s,color .3s;}
+.admin-bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;}
+.admin-bg::before{content:"";position:absolute;inset:0;background:
+ radial-gradient(ellipse 80% 60% at 12% 0%,rgba(56,189,248,.09),transparent 55%),
+ radial-gradient(ellipse 70% 60% at 90% 100%,rgba(37,99,235,.10),transparent 55%);}
+.admin-bg::after{content:"";position:absolute;inset:0;background-image:
+ linear-gradient(rgba(148,163,184,.025) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(148,163,184,.025) 1px,transparent 1px);
+ background-size:44px 44px;mask-image:radial-gradient(ellipse at top,black 15%,transparent 78%);-webkit-mask-image:radial-gradient(ellipse at top,black 15%,transparent 78%);}
+[data-theme="light"] .admin-bg::before{opacity:.35;}
+[data-theme="light"] .admin-bg::after{opacity:.45;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input,select,textarea{font-family:inherit;}
+.hidden{display:none!important;}
+a{color:inherit;text-decoration:none;}
+
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(148,163,184,.25);border-radius:10px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent-1);}
+::selection{background:rgba(56,189,248,0.35);color:var(--text-1);}
+
+select.form-control option { background-color: var(--bg-2); color: var(--text-1); }
+
+/* Custom Checkbox */
+.cb {
+  appearance: none; -webkit-appearance: none; width: 18px; height: 18px;
+  border: 2px solid var(--border-strong); border-radius: 5px;
+  background: var(--bg-elevated); cursor: pointer; position: relative;
+  transition: all 0.2s; flex-shrink: 0; outline: none;
+}
+.cb:hover { border-color: var(--accent-1); }
+.cb:checked { background: var(--accent-1); border-color: var(--accent-1); }
+.cb:checked::after {
+  content: ''; position: absolute; left: 5px; top: 1px; width: 4px; height: 9px;
+  border: solid #0B1120; border-width: 0 2px 2px 0; transform: rotate(45deg);
+}
+
+.layout{display:flex;height:100vh;overflow:hidden;}
+.sidebar{width:260px;background:var(--bg-card);border-right:1px solid var(--border);display:flex;flex-direction:column;transition:var(--trans);z-index:100;backdrop-filter:var(--glass);flex-shrink:0;}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;min-width:0;}
+
+.sb-head{padding:22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.logo-icon{width:42px;height:42px;border-radius:12px;background:var(--grad);display:grid;place-items:center;color:#fff;font-size:18px;box-shadow:var(--shadow-glow-blue);transition:var(--trans);}
+.sb-head:hover .logo-icon{transform:scale(1.05);}
+.logo-text{font-family:var(--font-display);font-weight:800;font-size:1.15rem;line-height:1.1;}
+.logo-text span { color: var(--accent-1); -webkit-text-fill-color: var(--accent-1); background: none; }
+.sb-nav{padding:16px 10px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px;}
+.sb-item{display:flex;align-items:center;gap:12px;padding:14px 14px;border-radius:11px;color:var(--text-2);font-weight:600;font-size:14px;cursor:pointer;transition:all .25s;width:100%;text-align:left;position:relative;overflow:hidden;}
+.sb-item:hover{background:rgba(56,189,248,.06);color:var(--text-1);}
+.sb-item.active{background:var(--grad-btn);color:#fff;box-shadow:var(--shadow-glow-blue);}
+.sb-item i{width:20px;text-align:center;font-size:15px;flex-shrink:0;}
+.sb-badge{background:var(--danger);color:#fff;font-family:var(--font-en);font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;margin-left:auto;}
+.sb-foot{padding:16px;border-top:1px solid var(--border);}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:11px;font-weight:600;font-size:14px;transition:all .25s;white-space:nowrap;}
+.btn-primary{background:var(--grad-btn);color:#fff;box-shadow:var(--shadow-glow-blue);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(37,99,235,.45);}
+.btn-outline{background:transparent;border:1.5px solid var(--border-strong);color:var(--text-1);}
+.btn-outline:hover{border-color:var(--accent-1);color:var(--accent-1);background:rgba(56,189,248,0.05);}
+.btn-danger{background:rgba(239,68,68,.1);color:var(--danger);border:1.5px solid rgba(239,68,68,.3);}
+.btn-danger:hover{background:var(--danger);color:#fff;}
+.btn-success{background:rgba(16,185,129,.1);color:var(--success);border:1.5px solid rgba(16,185,129,.3);}
+.btn-success:hover{background:var(--success);color:#fff;}
+.btn-warn{background:rgba(245,158,11,.1);color:var(--warning);border:1.5px solid rgba(245,158,11,.3);}
+.btn-warn:hover{background:var(--warning);color:#fff;}
+.btn-sm{padding:7px 13px;font-size:12.5px;border-radius:8px;}
+.btn-full{width:100%;}
+
+.topbar{height:68px;background:rgba(11,17,32,.8);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 22px;backdrop-filter:var(--glass);z-index:10;flex-shrink:0;gap:10px;}
+[data-theme="light"] .topbar { background: rgba(255,255,255,.8); }
+.page-title{font-family:var(--font-display);font-size:1.15rem;font-weight:700;}
+.topbar-actions{display:flex;align-items:center;gap:12px;}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-1);display:grid;place-items:center;font-size:15px;transition:all .25s;}
+.icon-btn:hover{border-color:var(--accent-1);color:var(--accent-1);box-shadow:var(--shadow-glow-blue);}
+.admin-badge{background:rgba(56,189,248,.1);color:var(--accent-1);padding:6px 12px;border-radius:20px;font-family:var(--font-en);font-size:11.5px;font-weight:700;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.5px;}
+.admin-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent-1);box-shadow:0 0 8px var(--accent-1);}
+
+.content{flex:1;overflow-y:auto;padding:28px;}
+.page{display:none;animation:fade .3s ease;}
+.page.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+ .card{background:linear-gradient(145deg,rgba(30,41,59,.78),rgba(15,23,42,.72));border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:20px;backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);transition:var(--trans);box-shadow:0 8px 30px rgba(0,0,0,.16);}
+[data-theme="light"] .card{background:rgba(255,255,255,.88);box-shadow:0 8px 28px rgba(15,23,42,.06);}
+.card:hover{border-color:rgba(56,189,248,.3);}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin-bottom:24px;}
+.stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .3s;position:relative;overflow:hidden;backdrop-filter:var(--glass);}
+.stat:hover{border-color:var(--accent-1);transform:translateY(-2px);box-shadow:var(--shadow-glow-blue);}
+.stat-icon{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:16px;margin-bottom:12px;}
+.stat-val{font-family:var(--font-display);font-size:1.85rem;font-weight:800;line-height:1;color:var(--text-1);}
+.stat-lbl{color:var(--text-2);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-top:6px;}
+
+.form-group{margin-bottom:15px;}
+.form-label{display:block;margin-bottom:7px;font-size:12.5px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;}
+.form-control{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg-elevated);color:var(--text-1);font-size:14px;outline:none;transition:all .25s;}
+.form-control:focus{border-color:var(--accent-1);box-shadow:0 0 0 3px rgba(56,189,248,.15);}
+textarea.form-control{resize:vertical;min-height:76px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:600px){.form-row{grid-template-columns:1fr}}
+
+.type-select{display:flex;gap:10px;margin-bottom:14px;}
+.type-opt{flex:1;padding:12px;border-radius:11px;border:2px solid var(--border);background:transparent;color:var(--text-2);font-weight:600;font-size:13.5px;text-align:center;cursor:pointer;transition:all .25s;}
+.type-opt:hover{border-color:var(--accent-1);color:var(--text-1);}
+.type-opt.active{border-color:var(--accent-1);background:rgba(56,189,248,.08);color:var(--accent-1);box-shadow:var(--shadow-glow-blue);}
+
+.img-upload-zone{position:relative;border:2px dashed var(--border);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .25s;background:rgba(11,17,32,.3);min-height:120px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.img-upload-zone:hover,.img-upload-zone.dragover{border-color:var(--accent-1);background:rgba(56,189,248,.05);}
+.img-upload-zone.has-img{border-style:solid;border-color:rgba(56,189,248,.4);padding:0;}
+.img-upload-preview{width:100%;height:120px;object-fit:cover;border-radius:12px;display:block;}
+.img-upload-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-2);font-size:13px;}
+.img-upload-placeholder i{font-size:28px;color:var(--accent-1);opacity:.7;}
+.img-upload-overlay{position:absolute;inset:0;background:rgba(11,17,32,.8);display:none;align-items:center;justify-content:center;color:var(--accent-1);font-weight:600;font-size:13px;gap:8px;border-radius:12px;}
+.img-upload-zone.uploading .img-upload-overlay{display:flex;}
+.upload-spinner{width:18px;height:18px;border:2px solid rgba(56,189,248,.3);border-top-color:var(--accent-1);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.img-clear-btn{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:var(--danger);color:#fff;display:grid;place-items:center;cursor:pointer;font-size:11px;z-index:2;}
+
+.modal-ov{position:fixed;inset:0;z-index:999;background:rgba(5,8,18,.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:var(--trans);overflow-y:auto;}
+.modal-ov.active{opacity:1;visibility:visible;}
+.modal-box{background:var(--bg-card-solid);border:1px solid var(--border-strong);border-radius:22px;width:100%;max-width:560px;padding:28px;position:relative;transform:translateY(10px) scale(.98);transition:all .3s cubic-bezier(.34,1.3,.5,1);max-height:90vh;overflow-y:auto;backdrop-filter:var(--glass);box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.modal-ov.active .modal-box{transform:translateY(0) scale(1);}
+.modal-close{position:absolute;top:14px;right:14px;background:transparent;color:var(--text-2);font-size:18px;cursor:pointer;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;transition:all .2s;}
+.modal-close:hover{background:var(--danger);color:#fff;transform:rotate(90deg);}
+.modal-title{font-family:var(--font-display);font-size:1.25rem;font-weight:800;margin-bottom:18px;}
+
+.list-item{display:flex;align-items:center;gap:12px;padding:14px 12px;border-bottom:1px solid var(--border);flex-wrap:wrap;transition:all .2s;border-radius:10px;}
+.list-item:hover{background:rgba(56,189,248,.03);}
+.list-item:last-child{border-bottom:none;}
+.list-info{flex:1;min-width:180px;}
+.list-info h4{font-size:14.5px;font-weight:700;margin-bottom:3px;line-height:1.4;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.list-info p{font-size:12.5px;color:var(--text-2);line-height:1.5;}
+.list-actions{display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;}
+.list-thumb{width:44px;height:44px;border-radius:10px;object-fit:cover;flex-shrink:0;border:1px solid var(--border);background:var(--bg-elevated);}
+
+.select-all-box{display:flex;align-items:center;gap:10px;padding:12px 14px;background:rgba(56,189,248,.05);border:1px solid rgba(56,189,248,.2);border-radius:10px;margin-bottom:16px;cursor:pointer;transition:all .2s;}
+.select-all-box:hover{background:rgba(56,189,248,.1);border-color:var(--accent-1);}
+
+.badge{padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;display:inline-block;}
+.badge-pending{background:rgba(245,158,11,.15);color:var(--warning);}
+.badge-approved{background:rgba(16,185,129,.15);color:var(--success);}
+.badge-held{background:rgba(59,130,246,.15);color:var(--info);}
+.badge-rejected{background:rgba(239,68,68,.15);color:var(--danger);}
+.badge-academic{background:rgba(56,189,248,.15);color:var(--accent-1);}
+.badge-frb{background:rgba(245,158,11,.15);color:var(--warning);}
+
+.bulk-bar{position:fixed;bottom:0;left:260px;right:0;background:var(--bg-card-solid);border-top:2px solid var(--accent-1);padding:14px 22px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;transform:translateY(100%);transition:var(--trans);z-index:50;box-shadow:0 -8px 30px rgba(0,0,0,.5);backdrop-filter:var(--glass);}
+.bulk-bar.show{transform:translateY(0);}
+.bulk-info{font-family:var(--font-en);font-size:13.5px;font-weight:700;color:var(--accent-1);}
+.bulk-actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;}
+@media(max-width:900px){.bulk-bar{left:0}}
+
+.toast-wrap{position:fixed;top:80px;right:20px;z-index:10000;display:flex;flex-direction:column;gap:10px;max-width:400px;pointer-events:none;}
+.toast{background:var(--bg-card-solid);border-left:4px solid var(--accent-1);padding:14px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);display:flex;align-items:center;gap:10px;backdrop-filter:var(--glass);pointer-events:auto;animation:slideIn .35s cubic-bezier(.34,1.3,.5,1);font-size:13.5px;line-height:1.5;}
+.toast.success{border-left-color:var(--success)}.toast.success i{color:var(--success)}
+.toast.error{border-left-color:var(--danger)}.toast.error i{color:var(--danger)}
+.toast.info{border-left-color:var(--info)}.toast.info i{color:var(--info)}
+.toast.warn{border-left-color:var(--warning)}.toast.warn i{color:var(--warning)}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+.dialog-ov{position:fixed;inset:0;z-index:10001;background:rgba(5,8,18,.85);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;visibility:hidden;transition:all .25s;overflow-y:auto;}
+.dialog-ov.active{opacity:1;visibility:visible;}
+.dialog-box{background:var(--bg-card-solid);border:1px solid var(--border-strong);border-radius:20px;width:100%;max-width:420px;padding:28px 24px 22px;text-align:center;position:relative;transform:scale(.95);transition:transform .3s cubic-bezier(.34,1.3,.5,1);box-shadow:0 20px 60px rgba(0,0,0,.4);backdrop-filter:var(--glass);}
+.dialog-ov.active .dialog-box{transform:scale(1);}
+.dialog-icon{width:64px;height:64px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;font-size:26px;}
+.dialog-icon.info{background:rgba(56,189,248,.15);color:var(--accent-1)}
+.dialog-icon.success{background:rgba(16,185,129,.15);color:var(--success)}
+.dialog-icon.warning{background:rgba(245,158,11,.15);color:var(--warning)}
+.dialog-icon.danger{background:rgba(239,68,68,.15);color:var(--danger)}
+.dialog-title{font-family:var(--font-display);font-size:1.2rem;font-weight:800;margin-bottom:10px;}
+.dialog-msg{font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:22px;}
+.dialog-input{width:100%;padding:12px 15px;border-radius:11px;border:1.5px solid var(--border);background:var(--bg-elevated);color:var(--text-1);font-size:14px;outline:none;margin-bottom:18px;transition:all .2s;text-align:left;}
+.dialog-input:focus{border-color:var(--accent-1)}
+.dialog-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.dialog-btn{flex:1;min-width:100px;padding:12px 18px;border-radius:11px;font-weight:700;font-size:14px;transition:all .25s;border:none;cursor:pointer;}
+.dialog-btn.primary{background:var(--grad-btn);color:#fff}
+.dialog-btn.danger{background:var(--danger);color:#fff}
+.dialog-btn.ghost{background:transparent;border:1.5px solid var(--border-strong);color:var(--text-1)}
+
+.mobile-menu-btn{display:none;background:transparent;color:var(--text-1);font-size:20px;margin-right:12px;padding:6px;border-radius:8px}
+.mobile-menu-btn:hover{background:rgba(56,189,248,.08)}
+@media(max-width:900px){
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0);box-shadow:0 0 60px rgba(0,0,0,.7)}
+  .mobile-menu-btn{display:block}
+  .stats{grid-template-columns:1fr 1fr}
+  .content{padding:20px 14px}
+}
+@media(max-width:600px){
+  .page-title{font-size:1rem}
+  .admin-badge{display:none}
+  .content{padding:16px 12px 100px}
+}
+.empty{text-align:center;padding:40px 20px;color:var(--text-2);font-size:14px}
+.empty i{font-size:36px;opacity:.4;display:block;margin-bottom:12px}
+.skel{padding:14px;color:var(--text-2);font-size:13px;text-align:center}
+
+.avatar-img{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid rgba(56,189,248,.5);flex-shrink:0}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-head">
+      <div class="logo-icon"><i class="fas fa-shield-halved"></i></div>
+      <div class="logo-text">Admin<span>Panel</span></div>
+    </div>
+    <nav class="sb-nav">
+      <button class="sb-item active" data-page="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</button>
+      <button class="sb-item" data-page="signup-reqs"><i class="fas fa-user-clock"></i> Signup Requests <span class="sb-badge hidden" id="badgeReqs">0</span></button>
+      <button class="sb-item" data-page="users"><i class="fas fa-users"></i> Manage Users</button>
+      <button class="sb-item" data-page="chapters"><i class="fas fa-layer-group"></i> Chapters</button>
+      <button class="sb-item" data-page="classes"><i class="fas fa-video"></i> Classes</button>
+      <button class="sb-item" data-page="guides"><i class="fas fa-book"></i> Guides</button>
+      <button class="sb-item" data-page="requests"><i class="fas fa-paper-plane"></i> User Requests</button>
+      <button class="sb-item" data-page="reports"><i class="fas fa-flag"></i> Content Reports</button>
+      <button class="sb-item" data-page="activity"><i class="fas fa-clipboard-list"></i> Activity Logs</button>
+      <button class="sb-item" data-page="announcements"><i class="fas fa-bullhorn"></i> Announcements</button>
+      <button class="sb-item" data-page="notifications"><i class="fas fa-bell"></i> Send Notification</button>
+      <button class="sb-item" data-page="settings"><i class="fas fa-cog"></i> Website Settings</button>
+    </nav>
+    <div class="sb-foot">
+      <a href="index.html" class="btn btn-outline btn-full" style="margin-bottom:8px"><i class="fas fa-arrow-left"></i> Back to Site</a>
+      <button class="btn btn-danger btn-full" onclick="handleLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;min-width:0">
+        <button class="mobile-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      </div>
+      <div class="topbar-actions">
+        <span class="admin-badge">Online</span>
+        <button class="icon-btn" onclick="toggleTheme()" title="Theme"><i class="fas fa-sun" id="themeIcon"></i></button>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <section id="page-dashboard" class="page active">
+        <div class="stats">
+          <div class="stat"><div class="stat-icon" style="background:rgba(56,189,248,.12);color:var(--accent-1)"><i class="fas fa-users"></i></div><div class="stat-val" id="stTotalUsers">—</div><div class="stat-lbl">Total Users</div></div>
+          <div class="stat"><div class="stat-icon" style="background:rgba(245,158,11,.12);color:var(--warning)"><i class="fas fa-user-clock"></i></div><div class="stat-val" id="stPending">—</div><div class="stat-lbl">Pending Users</div></div>
+          <div class="stat"><div class="stat-icon" style="background:rgba(16,185,129,.12);color:var(--success)"><i class="fas fa-user-check"></i></div><div class="stat-val" id="stApproved">—</div><div class="stat-lbl">Approved</div></div>
+          <div class="stat"><div class="stat-icon" style="background:rgba(59,130,246,.12);color:var(--accent-2)"><i class="fas fa-layer-group"></i></div><div class="stat-val" id="stChapters">—</div><div class="stat-lbl">Chapters</div></div>
+          <div class="stat"><div class="stat-icon" style="background:rgba(239,68,68,.12);color:var(--danger)"><i class="fas fa-video"></i></div><div class="stat-val" id="stClasses">—</div><div class="stat-lbl">Classes</div></div>
+          <div class="stat"><div class="stat-icon" style="background:rgba(245,158,11,.12);color:var(--warning)"><i class="fas fa-paper-plane"></i></div><div class="stat-val" id="stReqPending">—</div><div class="stat-lbl">Pending Requests</div></div>
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:14px;font-size:1.05rem">Recent Signup Requests</h3>
+          <div id="recentReqList"><div class="skel">Loading...</div></div>
+        </div>
+      </section>
+
+      <section id="page-signup-reqs" class="page">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h3 style="font-size:1.05rem">Pending Signup Requests</h3>
+            <button class="btn btn-outline btn-sm" onclick="loadSignupRequests()"><i class="fas fa-rotate"></i> Refresh</button>
+          </div>
+          <div id="signupReqsList"><div class="skel">Loading...</div></div>
+        </div>
+      </section>
+
+      <section id="page-users" class="page">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h3 style="font-size:1.05rem">All Users</h3>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <input type="text" id="userSearch" class="form-control" placeholder="Search..." style="width:220px;padding:8px 12px" oninput="filterUsers()">
+              <button class="btn btn-outline btn-sm" onclick="loadUsers()"><i class="fas fa-rotate"></i></button>
+            </div>
+          </div>
+          
+          <label class="select-all-box">
+            <input type="checkbox" class="cb" id="selectAllUsers" onchange="toggleSelectAllUsers(this.checked)">
+            <span style="font-size:13.5px;font-weight:700;color:var(--text-1);display:flex;align-items:center;gap:8px">
+              <i class="fas fa-check-double" style="color:var(--accent-1)"></i> Select All Users
+            </span>
+          </label>
+
+          <div id="usersList"><div class="skel">Loading...</div></div>
+        </div>
+      </section>
+
+      <section id="page-chapters" class="page">
+        <div style="display:flex;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+          <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:800">Manage Chapters</h2>
+          <button class="btn btn-primary" onclick="openChapterModal()"><i class="fas fa-plus"></i> Add Chapter</button>
+        </div>
+        <div class="card"><div id="chaptersList"><div class="skel">Loading...</div></div></div>
+      </section>
+
+      <section id="page-classes" class="page">
+        <div style="display:flex;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+          <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:800">Manage Classes</h2>
+          <button class="btn btn-primary" onclick="openClassModal()"><i class="fas fa-plus"></i> Add Class</button>
+        </div>
+        <div class="card"><div id="classesList"><div class="skel">Loading...</div></div></div>
+      </section>
+
+      <section id="page-guides" class="page">
+        <div style="display:flex;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+          <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:800">Manage Guides</h2>
+          <button class="btn btn-primary" onclick="openGuideModal()"><i class="fas fa-plus"></i> Add Guide</button>
+        </div>
+        <div class="card"><div id="guidesList"><div class="skel">Loading...</div></div></div>
+      </section>
+
+      <section id="page-requests" class="page">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h3 style="font-size:1.05rem">User Requests</h3>
+            <button class="btn btn-outline btn-sm" onclick="loadRequests()"><i class="fas fa-rotate"></i> Refresh</button>
+          </div>
+          <div id="requestsList"><div class="skel">Loading...</div></div>
+        </div>
+      </section>
+
+      <section id="page-reports" class="page">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h3 style="font-size:1.05rem">Content Reports</h3>
+            <button class="btn btn-outline btn-sm" onclick="loadReports()"><i class="fas fa-rotate"></i> Refresh</button>
+          </div>
+          <div id="reportsList"><div class="skel">Loading...</div></div>
+        </div>
+      </section>
+
+      <section id="page-activity" class="page">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h3 style="font-size:1.05rem">Activity Logs</h3>
+            <button class="btn btn-outline btn-sm" onclick="loadActivityLogs()"><i class="fas fa-rotate"></i> Refresh</button>
+          </div>
+          <div id="activityList"><div class="skel">Loading...</div></div>
+        </div>
+      </section>
+
+      <section id="page-announcements" class="page">
+        <div style="display:flex;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+          <h2 style="font-family:var(--font-display);font-size:1.4rem;font-weight:800">Announcements</h2>
+          <button class="btn btn-primary" onclick="openAnnouncementModal()"><i class="fas fa-plus"></i> New Announcement</button>
+        </div>
+        <div class="card"><div id="announcementList"><div class="skel">Loading...</div></div></div>
+      </section>
+
+      <section id="page-notifications" class="page">
+        <div class="card" style="max-width: 640px;">
+          <h3 style="font-size:1.15rem;margin-bottom:18px"><i class="fas fa-bell" style="color:var(--accent-1)"></i> Send Notification to Users</h3>
+          <form onsubmit="sendNotification(event)">
+            <div class="form-group">
+              <label class="form-label">Recipient</label>
+              <select class="form-control" id="notifRecipient" onchange="onNotifRecipientChange()">
+                <option value="all">All Approved Users</option>
+                <option value="specific">Specific User</option>
+              </select>
+            </div>
+            <div class="form-group hidden" id="notifUserGroup">
+              <label class="form-label">Select User</label>
+              <select class="form-control" id="notifUserSelect">
+                <option value="">Loading users...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Notification Title *</label>
+              <input type="text" class="form-control" id="notifTitle" placeholder="e.g. New Chapter Added!" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message</label>
+              <textarea class="form-control" id="notifMessage" rows="3" placeholder="Write details here..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Notification Type</label>
+              <select class="form-control" id="notifType">
+                <option value="info">Info (Blue)</option>
+                <option value="success">Success (Green)</option>
+                <option value="warning">Warning (Yellow)</option>
+                <option value="danger">Important (Red)</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-paper-plane"></i> Send Notification</button>
+          </form>
+        </div>
+      </section>
+
+      <section id="page-settings" class="page">
+        <div class="card" style="max-width:640px">
+          <h3 style="font-size:1.15rem;margin-bottom:18px"><i class="fas fa-cog" style="color:var(--accent-1)"></i> Website Settings</h3>
+          <form onsubmit="saveSettings(event)">
+            <div class="form-group">
+              <label class="form-label">Website Name</label>
+              <input type="text" class="form-control" id="setSiteName" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Registration Status</label>
+                <select class="form-control" id="setRegEnabled">
+                  <option value="true">Open (Users can sign up)</option>
+                  <option value="false">Closed (Signups disabled)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Maintenance Mode</label>
+                <select class="form-control" id="setMaintMode">
+                  <option value="false">Off (Site is Live)</option>
+                  <option value="true">On (Under Maintenance)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact Phone</label>
+              <input type="text" class="form-control" id="setContactPhone">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contact Email</label>
+              <input type="email" class="form-control" id="setContactEmail">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Address</label>
+              <input type="text" class="form-control" id="setContactAddress">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Facebook URL</label>
+              <input type="url" class="form-control" id="setFacebookUrl">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-save"></i> Save Settings</button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+
+    <div class="bulk-bar" id="bulkBar">
+      <span class="bulk-info" id="bulkInfo">0 selected</span>
+      <div class="bulk-actions">
+        <button class="btn btn-success btn-sm" onclick="bulkAction('approve')"><i class="fas fa-check"></i> Approve</button>
+        <button class="btn btn-warn btn-sm" onclick="bulkAction('suspend')"><i class="fas fa-user-slash"></i> Suspend</button>
+        <button class="btn btn-danger btn-sm" onclick="bulkAction('delete')"><i class="fas fa-trash"></i> Delete</button>
+        <button class="btn btn-outline btn-sm" onclick="clearSelection()"><i class="fas fa-xmark"></i> Clear</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-ov" id="chapterModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('chapterModal')"><i class="fas fa-times"></i></button>
+    <h3 class="modal-title" id="chapterModalTitle">Add New Chapter</h3>
+    <form onsubmit="saveChapter(event)">
+      <input type="hidden" id="chapterEditId">
+      <div class="form-group">
+        <label class="form-label">Class Type *</label>
+        <div class="type-select">
+          <button type="button" class="type-opt active" data-type="academic" onclick="setChapterType('academic')">Academic</button>
+          <button type="button" class="type-opt" data-type="frb_2027" onclick="setChapterType('frb_2027')">FRB-2027</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Subject *</label>
+        <select class="form-control" id="chapSubject" required></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Chapter Name *</label>
+        <input type="text" class="form-control" id="chapName" placeholder="e.g. Reflection of Light" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-control" id="chapDesc" rows="2"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cover Image <span style="font-size:11px;color:var(--text-2);font-weight:400">(optional)</span></label>
+        <div class="img-upload-zone" id="chapImgZone" onclick="document.getElementById('chapImgInput').click()"
+             ondragover="event.preventDefault();this.classList.add('dragover')"
+             ondragleave="this.classList.remove('dragover')"
+             ondrop="handleImageDrop(event,'chap')">
+          <input type="file" id="chapImgInput" accept="image/*" style="display:none" onchange="handleImageFile(event,'chap')">
+          <div class="img-upload-overlay"><div class="upload-spinner"></div> Uploading to ImgBB...</div>
+          <div class="img-upload-placeholder" id="chapImgPlaceholder">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>Click or drag image</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Display Order</label>
+        <input type="number" class="form-control" id="chapOrder" value="1">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" class="cb" id="chapPublish" checked>
+        <label for="chapPublish" style="font-size:14px;font-weight:600;cursor:pointer">Publish Immediately</label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-save"></i> Save Chapter</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-ov" id="classModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('classModal')"><i class="fas fa-times"></i></button>
+    <h3 class="modal-title" id="classModalTitle">Add New Class</h3>
+    <form onsubmit="saveClass(event)">
+      <input type="hidden" id="classEditId">
+      <div class="form-group">
+        <label class="form-label">Class Type *</label>
+        <div class="type-select">
+          <button type="button" class="type-opt active" data-type="academic" onclick="setClassType('academic')">Academic</button>
+          <button type="button" class="type-opt" data-type="frb_2027" onclick="setClassType('frb_2027')">FRB-2027</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Chapter * <span style="color:var(--accent-1);font-size:11px" id="chapFilterHint"></span></label>
+        <select class="form-control" id="classChapter" required></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Class Title *</label>
+        <input type="text" class="form-control" id="classTitle" placeholder="e.g. Lecture 1: Basics" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <input type="text" class="form-control" id="classDesc" placeholder="Optional">
+      </div>
+      <div class="form-group">
+        <label class="form-label">YouTube Link</label>
+        <input type="url" class="form-control" id="classLink" placeholder="https://youtube.com/watch?v=...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Drive Slide Link</label>
+        <input type="url" class="form-control" id="classSlide" placeholder="https://drive.google.com/...">
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" class="cb" id="classPublish" checked>
+        <label for="classPublish" style="font-size:14px;font-weight:600;cursor:pointer">Publish Immediately</label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-save"></i> Save Class</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-ov" id="guideModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('guideModal')"><i class="fas fa-times"></i></button>
+    <h3 class="modal-title" id="guideModalTitle">Add New Guide Book</h3>
+    <form onsubmit="saveGuide(event)">
+      <input type="hidden" id="guideEditId">
+      <div class="form-group">
+        <label class="form-label">Subject *</label>
+        <select class="form-control" id="guideSubject" required></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Guide Name *</label>
+        <input type="text" class="form-control" id="guideName" placeholder="e.g. Final Suggestion 2025" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <input type="text" class="form-control" id="guideDesc">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cover Image <span style="font-size:11px;color:var(--text-2);font-weight:400">(optional)</span></label>
+        <div class="img-upload-zone" id="guideImgZone" onclick="document.getElementById('guideImgInput').click()"
+             ondragover="event.preventDefault();this.classList.add('dragover')"
+             ondragleave="this.classList.remove('dragover')"
+             ondrop="handleImageDrop(event,'guide')">
+          <input type="file" id="guideImgInput" accept="image/*" style="display:none" onchange="handleImageFile(event,'guide')">
+          <div class="img-upload-overlay"><div class="upload-spinner"></div> Uploading to ImgBB...</div>
+          <div class="img-upload-placeholder" id="guideImgPlaceholder">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>Click or drag image</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">External Link (Drive/PDF) *</label>
+        <input type="url" class="form-control" id="guideUrl" placeholder="https://drive.google.com/..." required>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" class="cb" id="guidePublish" checked>
+        <label for="guidePublish" style="font-size:14px;font-weight:600;cursor:pointer">Publish Immediately</label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-save"></i> Save Guide</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal-ov" id="announcementModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal('announcementModal')"><i class="fas fa-times"></i></button>
+    <h3 class="modal-title" id="announcementModalTitle">New Announcement</h3>
+    <form onsubmit="saveAnnouncement(event)">
+      <input type="hidden" id="annEditId">
+      <div class="form-group">
+        <label class="form-label">Title *</label>
+        <input type="text" class="form-control" id="annTitle" required placeholder="e.g. New Chapter Added!">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Content</label>
+        <textarea class="form-control" id="annContent" rows="3" placeholder="Details..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-control" id="annType">
+          <option value="info">Info</option>
+          <option value="warning">Warning</option>
+          <option value="danger">Important</option>
+        </select>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:10px">
+        <input type="checkbox" class="cb" id="annActive" checked>
+        <label for="annActive" style="font-size:14px;font-weight:600;cursor:pointer">Make Active (visible on user dashboard)</label>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full"><i class="fas fa-save"></i> Save Announcement</button>
+    </form>
+  </div>
+</div>
+
+<div class="dialog-ov" id="dialogOv">
+  <div class="dialog-box">
+    <div class="dialog-icon" id="dialogIcon"><i class="fas fa-info-circle"></i></div>
+    <h3 class="dialog-title" id="dialogTitle">Confirm</h3>
+    <p class="dialog-msg" id="dialogMsg">Are you sure?</p>
+    <input type="text" class="dialog-input hidden" id="dialogInput">
+    <div class="dialog-actions" id="dialogActions"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+'use strict';
+
+const SUPABASE_URL = 'https://wogrultusgxfqyjcyqrv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvZ3J1bHR1c2d4ZnF5amN5cXJ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2MDkxODQsImV4cCI6MjEwOTE4NTE4NH0.eCeOcuB-vOvw_8Bt5OIA6MVD06iUi7sfeIYImM5NGxU';
+const IMGBB_KEY = 'eb0cc85afb1d7da7ffc93f6e3512967e';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const TOKEN_KEY = 'eh_token';
+const USER_KEY = 'eh_user';
+
+let state = {
+  token: null, user: null,
+  subjects: [], chapters: [],
+  chapterType: 'academic', classType: 'academic',
+  selectedUsers: new Set(), allUsers: [],
+  chapImageUrl: null, guideImageUrl: null
+};
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function toast(msg, type='success') {
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  const icons = { success: 'fa-check-circle', error: 'fa-circle-xmark', info: 'fa-info-circle', warn: 'fa-triangle-exclamation' };
+  el.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i><span>${escapeHtml(msg)}</span>`;
+  wrap.appendChild(el);
+  setTimeout(() => {
+    el.style.animation = 'slideOut .35s forwards';
+    setTimeout(() => el.remove(), 350);
+  }, 4000);
+}
+
+let _dialogResolve = null;
+function showDialog({ title, message, type='info', input=null, confirmText='OK', cancelText=null, confirmVariant='primary' }) {
+  return new Promise(resolve => {
+    _dialogResolve = resolve;
+    const ov = document.getElementById('dialogOv');
+    const icons = { info: 'fa-info-circle', success: 'fa-check-circle', warning: 'fa-triangle-exclamation', danger: 'fa-triangle-exclamation' };
+    document.getElementById('dialogIcon').className = 'dialog-icon ' + type;
+    document.getElementById('dialogIcon').innerHTML = `<i class="fas ${icons[type]}"></i>`;
+    document.getElementById('dialogTitle').textContent = title || 'Confirm';
+    document.getElementById('dialogMsg').textContent = message || '';
+    const inp = document.getElementById('dialogInput');
+    if (input) {
+      inp.classList.remove('hidden');
+      inp.placeholder = input.placeholder || '';
+      inp.value = input.value || '';
+      setTimeout(() => inp.focus(), 100);
+    } else {
+      inp.classList.add('hidden');
+      inp.value = '';
+    }
+    const actions = document.getElementById('dialogActions');
+    actions.innerHTML = '';
+    if (cancelText) {
+      const cb = document.createElement('button');
+      cb.className = 'dialog-btn ghost';
+      cb.textContent = cancelText;
+      cb.onclick = () => { closeDialog(); resolve(input ? { confirmed: false, value: '' } : false); };
+      actions.appendChild(cb);
+    }
+    const okb = document.createElement('button');
+    okb.className = 'dialog-btn ' + confirmVariant;
+    okb.textContent = confirmText;
+    okb.onclick = () => {
+      const val = input ? document.getElementById('dialogInput').value : null;
+      closeDialog();
+      resolve(input ? { confirmed: true, value: val } : true);
+    };
+    actions.appendChild(okb);
+    ov.classList.add('active');
+    setTimeout(() => okb.focus(), 100);
+  });
+}
+function closeDialog() {
+  document.getElementById('dialogOv').classList.remove('active');
+  if (_dialogResolve) _dialogResolve = null;
+}
+async function confirmDialog(title, message, { danger=false } = {}) {
+  return await showDialog({
+    title, message,
+    type: danger ? 'danger' : 'warning',
+    confirmText: 'Yes',
+    cancelText: 'Cancel',
+    confirmVariant: danger ? 'danger' : 'primary'
+  });
+}
+async function promptDialog(title, message, placeholder='') {
+  const res = await showDialog({
+    title, message, type: 'info',
+    input: { placeholder },
+    confirmText: 'Submit', cancelText: 'Cancel', confirmVariant: 'primary'
+  });
+  return res.confirmed ? res.value : null;
+}
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('eh-theme', next);
+  document.getElementById('themeIcon').className = next === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+}
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+// ═══════════════ প্রোফাইল আইকন (লেটার ছাড়া) ═══════════════
+function avatarSvg(name, size=40) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect width="100" height="100" fill="#1E293B"/>
+    <path fill="#3B82F6" d="M50 50c11 0 20-9 20-20s-9-20-20-20-20 9-20 20 9 20 20 20zm0 10c-15 0-40 7.5-40 22.5V100h80V82.5C90 67.5 65 60 50 60z"/>
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+async function uploadToImgBB(file) {
+  if (!file.type.startsWith('image/')) throw new Error('Not an image');
+  if (file.size > 8 * 1024 * 1024) throw new Error('Image too large (max 8MB)');
+  const form = new FormData();
+  form.append('image', file);
+  const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: form });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.error?.message || 'Upload failed');
+  return data.data.url;
+}
+
+function renderUploadZone(kind, url) {
+  const zone = document.getElementById(kind + 'ImgZone');
+  const placeholder = document.getElementById(kind + 'ImgPlaceholder');
+  if (!zone) return;
+  zone.querySelectorAll('.img-upload-preview, .img-clear-btn').forEach(el => el.remove());
+  if (url) {
+    zone.classList.add('has-img');
+    const img = document.createElement('img');
+    img.className = 'img-upload-preview';
+    img.src = url;
+    img.alt = '';
+    zone.appendChild(img);
+    const clear = document.createElement('div');
+    clear.className = 'img-clear-btn';
+    clear.innerHTML = '<i class="fas fa-times"></i>';
+    clear.onclick = (e) => { e.stopPropagation(); if (kind === 'chap') state.chapImageUrl = null; else state.guideImageUrl = null; renderUploadZone(kind, null); };
+    zone.appendChild(clear);
+    if (placeholder) placeholder.style.display = 'none';
+  } else {
+    zone.classList.remove('has-img');
+    if (placeholder) placeholder.style.display = 'flex';
+  }
+}
+
+async function processImageUpload(file, kind) {
+  const zone = document.getElementById(kind + 'ImgZone');
+  zone.classList.add('uploading');
+  try {
+    const url = await uploadToImgBB(file);
+    if (kind === 'chap') state.chapImageUrl = url;
+    else state.guideImageUrl = url;
+    renderUploadZone(kind, url);
+    toast('Image uploaded!', 'success');
+  } catch (e) {
+    console.error(e);
+    toast(e.message || 'Upload failed', 'error');
+  } finally {
+    zone.classList.remove('uploading');
+  }
+}
+
+function handleImageFile(e, kind) {
+  const file = e.target.files?.[0];
+  if (file) processImageUpload(file, kind);
+  e.target.value = '';
+}
+function handleImageDrop(e, kind) {
+  e.preventDefault();
+  const zone = document.getElementById(kind + 'ImgZone');
+  zone.classList.remove('dragover');
+  const file = e.dataTransfer?.files?.[0];
+  if (file && file.type.startsWith('image/')) processImageUpload(file, kind);
+}
+
+document.addEventListener('paste', (e) => {
+  const chapModal = document.getElementById('chapterModal');
+  const guideModal = document.getElementById('guideModal');
+  const items = e.clipboardData?.items;
+  if (!items) return;
+  for (let item of items) {
+    if (item.type.indexOf('image') === 0) {
+      const file = item.getAsFile();
+      if (chapModal.classList.contains('active')) { processImageUpload(file, 'chap'); e.preventDefault(); return; }
+      if (guideModal.classList.contains('active')) { processImageUpload(file, 'guide'); e.preventDefault(); return; }
+    }
+  }
+});
+
+async function verifyAdmin() {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const userRaw = localStorage.getItem(USER_KEY);
+  if (!token || !userRaw) { window.location.replace('index.html'); return false; }
+  try {
+    const result = await sb.rpc('get_current_user', { p_token: token });
+    const u = result.data;
+    if (!u || u.error || !u.is_admin) { window.location.replace('index.html'); return false; }
+    state.token = token;
+    state.user = u;
+    return true;
+  } catch (e) {
+    window.location.replace('index.html');
+    return false;
+  }
+}
+
+async function handleLogout() {
+  const ok = await confirmDialog('Logout?', 'Logout from admin panel?');
+  if (!ok) return;
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+  window.location.replace('index.html');
+}
+
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+  document.getElementById('page-' + page)?.classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  const titles = { dashboard:'Dashboard', 'signup-reqs':'Signup Requests', users:'Manage Users', chapters:'Manage Chapters', classes:'Manage Classes', guides:'Manage Guides', requests:'User Requests', reports:'Content Reports', activity:'Activity Logs', announcements:'Announcements', notifications:'Send Notification', settings:'Website Settings' };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+  document.getElementById('sidebar').classList.remove('open');
+
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'signup-reqs') loadSignupRequests();
+  if (page === 'users') loadUsers();
+  if (page === 'chapters') loadChapters();
+  if (page === 'classes') loadClasses();
+  if (page === 'guides') loadGuides();
+  if (page === 'requests') loadRequests();
+  if (page === 'reports') loadReports();
+  if (page === 'activity') loadActivityLogs();
+  if (page === 'announcements') loadAnnouncements();
+  if (page === 'notifications') loadNotifyUsers();
+  if (page === 'settings') loadSettings();
+}
+
+async function loadDashboard() {
+  const { data, error } = await sb.rpc('admin_get_stats', { p_token: state.token });
+  if (error || data?.error) return toast('Failed to load stats', 'error');
+  document.getElementById('stTotalUsers').textContent = data.total_users || 0;
+  document.getElementById('stPending').textContent = data.pending_users || 0;
+  document.getElementById('stApproved').textContent = data.approved_users || 0;
+  document.getElementById('stChapters').textContent = data.total_chapters || 0;
+  document.getElementById('stClasses').textContent = data.total_classes || 0;
+  document.getElementById('stReqPending').textContent = data.pending_requests || 0;
+
+  const badge = document.getElementById('badgeReqs');
+  if (data.pending_users > 0) { badge.textContent = data.pending_users; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+
+  const reqRes = await sb.rpc('admin_list_users', { p_token: state.token });
+  const users = Array.isArray(reqRes.data) ? reqRes.data : [];
+  const recent = users.filter(u => !u.is_approved && !u.is_rejected).slice(0, 5);
+  const listEl = document.getElementById('recentReqList');
+  if (recent.length === 0) {
+    listEl.innerHTML = '<div class="empty"><i class="fas fa-inbox"></i>No pending requests</div>';
+  } else {
+    listEl.innerHTML = recent.map(r => {
+      const imgSrc = r.profile_image_url || avatarSvg();
+      return `
+        <div class="list-item">
+          <img class="avatar-img" src="${imgSrc}" alt="User">
+          <div class="list-info">
+            <h4>${escapeHtml(r.full_name)}</h4>
+            <p>${escapeHtml(r.email)} · ${escapeHtml(r.phone || '')}</p>
+          </div>
+          <span class="badge badge-pending">Pending</span>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+async function loadSignupRequests() {
+  const list = document.getElementById('signupReqsList');
+  list.innerHTML = '<div class="skel">Loading...</div>';
+  const { data } = await sb.rpc('admin_list_users', { p_token: state.token });
+  const users = Array.isArray(data) ? data : [];
+  const pending = users.filter(u => !u.is_approved && !u.is_rejected && !u.is_held);
+  if (pending.length === 0) {
+    list.innerHTML = '<div class="empty"><i class="fas fa-check-circle"></i>No pending requests</div>';
+    return;
+  }
+  list.innerHTML = pending.map(u => {
+    const imgSrc = u.profile_image_url || avatarSvg();
+    return `
+      <div class="list-item">
+        <img class="avatar-img" src="${imgSrc}" alt="User">
+        <div class="list-info">
+          <h4>${escapeHtml(u.full_name)}</h4>
+          <p><i class="fas fa-envelope"></i> ${escapeHtml(u.email)} &nbsp;·&nbsp; <i class="fas fa-phone"></i> ${escapeHtml(u.phone || '—')}</p>
+          <p style="margin-top:4px;color:var(--text-2);font-size:11.5px">Joined: ${new Date(u.created_at).toLocaleString()}</p>
+        </div>
+        <div class="list-actions">
+          <button class="btn btn-success btn-sm" onclick="approveUser('${u.id}')"><i class="fas fa-check"></i> Accept</button>
+          <button class="btn btn-warn btn-sm" onclick="holdUser('${u.id}')"><i class="fas fa-pause"></i> Hold</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectUser('${u.id}')"><i class="fas fa-times"></i> Reject</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function approveUser(id) {
+  if (!await confirmDialog('Approve User?', 'They will be auto-logged-in on their screen.')) return;
+  const { data } = await sb.rpc('admin_approve_user', { p_token: state.token, p_user_id: id });
+  if (data?.error) return toast(data.error, 'error');
+  toast('User approved!', 'success');
+  loadSignupRequests(); loadDashboard();
+}
+async function holdUser(id) {
+  if (!await confirmDialog('Hold User?', 'They will see "Account On Hold" screen.')) return;
+  const { data } = await sb.rpc('admin_hold_user', { p_token: state.token, p_user_id: id });
+  if (data?.error) return toast(data.error, 'error');
+  toast('User placed on hold', 'success');
+  loadSignupRequests(); loadDashboard();
+}
+async function rejectUser(id) {
+  if (!await confirmDialog('Reject User?', 'This is permanent — they cannot login.', { danger: true })) return;
+  const { data } = await sb.rpc('admin_reject_user', { p_token: state.token, p_user_id: id });
+  if (data?.error) return toast(data.error, 'error');
+  toast('User rejected', 'success');
+  loadSignupRequests(); loadDashboard();
+}
+
+async function loadUsers() {
+  const list = document.getElementById('usersList');
+  list.innerHTML = '<div class="skel">Loading...</div>';
+  const { data } = await sb.rpc('admin_list_users', { p_token: state.token });
+  state.allUsers = Array.isArray(data) ? data : [];
+  renderUsers(state.allUsers);
+  state.selectedUsers.clear();
+  document.getElementById('selectAllUsers').checked = false;
+  updateBulkBar();
+}
+function filterUsers() {
+  const q = document.getElementById('userSearch').value.toLowerCase().trim();
+  const filtered = q ? state.allUsers.filter(u =>
+    (u.full_name || '').toLowerCase().includes(q) ||
+    (u.email || '').toLowerCase().includes(q) ||
+    (u.phone || '').includes(q)
+  ) : state.allUsers;
+  renderUsers(filtered);
+}
+function renderUsers(users) {
+  const list = document.getElementById('usersList');
+  if (users.length === 0) { list.innerHTML = '<div class="empty"><i class="fas fa-users-slash"></i>No users found</div>'; return; }
+  list.innerHTML = users.map(u => {
+    let bc = 'badge-pending', bt = 'Pending';
+    if (u.is_rejected) { bc = 'badge-rejected'; bt = 'Rejected'; }
+    else if (u.is_held) { bc = 'badge-held'; bt = 'Held'; }
+    else if (u.is_approved) { bc = 'badge-approved'; bt = 'Approved'; }
+    
+    const imgSrc = u.profile_image_url || avatarSvg();
+    
+    return `
+      <div class="list-item">
+        <input type="checkbox" class="cb user-cb" data-id="${u.id}" onchange="toggleUserSelect('${u.id}', this.checked)" ${state.selectedUsers.has(u.id) ? 'checked' : ''}>
+        <img class="avatar-img" src="${imgSrc}" alt="User">
+        <div class="list-info">
+          <h4>${escapeHtml(u.full_name)} <span class="badge ${bc}">${bt}</span></h4>
+          <p><i class="fas fa-envelope"></i> ${escapeHtml(u.email)} · <i class="fas fa-phone"></i> ${escapeHtml(u.phone || '—')}</p>
+          <p style="margin-top:4px;color:var(--text-2);font-size:11.5px">Joined: ${new Date(u.created_at).toLocaleDateString()}</p>
+        </div>
+        <div class="list-actions">
+          ${!u.is_approved ? `<button class="btn btn-success btn-sm" onclick="approveUser('${u.id}')" title="Approve"><i class="fas fa-check"></i></button>` : ''}
+          ${u.is_approved ? `<button class="btn btn-warn btn-sm" onclick="suspendSingle('${u.id}')" title="Suspend"><i class="fas fa-user-slash"></i></button>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="deleteSingle('${u.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+function toggleUserSelect(id, checked) {
+  if (checked) state.selectedUsers.add(id); else state.selectedUsers.delete(id);
+  updateBulkBar();
+}
+function toggleSelectAllUsers(checked) {
+  if (checked) state.allUsers.forEach(u => state.selectedUsers.add(u.id));
+  else state.selectedUsers.clear();
+  document.querySelectorAll('.user-cb').forEach(cb => cb.checked = checked);
+  updateBulkBar();
+}
+function clearSelection() {
+  state.selectedUsers.clear();
+  document.getElementById('selectAllUsers').checked = false;
+  document.querySelectorAll('.user-cb').forEach(cb => cb.checked = false);
+  updateBulkBar();
+}
+function updateBulkBar() {
+  document.getElementById('bulkInfo').textContent = `${state.selectedUsers.size} selected`;
+  document.getElementById('bulkBar').classList.toggle('show', state.selectedUsers.size > 0);
+}
+async function bulkAction(action) {
+  const ids = Array.from(state.selectedUsers);
+  if (ids.length === 0) return;
+  const labels = { approve: 'approve', suspend: 'suspend', delete: 'DELETE' };
+  if (!await confirmDialog(`Confirm ${action}?`, `Are you sure you want to ${labels[action]} ${ids.length} user(s)?`, { danger: action === 'delete' })) return;
+  try {
+    if (action === 'approve') {
+      const { data } = await sb.rpc('admin_bulk_approve', { p_token: state.token, p_user_ids: ids });
+      if (data?.error) throw new Error(data.error);
+    } else if (action === 'suspend') {
+      const { data } = await sb.rpc('admin_bulk_suspend', { p_token: state.token, p_user_ids: ids });
+      if (data?.error) throw new Error(data.error);
+    } else if (action === 'delete') {
+      const { data } = await sb.rpc('admin_delete_users', { p_token: state.token, p_user_ids: ids });
+      if (data?.error) throw new Error(data.error);
+    }
+    toast(`${ids.length} user(s) processed`, 'success');
+    clearSelection(); loadUsers(); loadDashboard();
+  } catch (e) { toast(e.message, 'error'); }
+}
+async function suspendSingle(id) {
+  if (!await confirmDialog('Suspend User?', 'They will not be able to access content.')) return;
+  const { data } = await sb.rpc('admin_suspend_user', { p_token: state.token, p_user_id: id });
+  if (data?.error) return toast(data.error, 'error');
+  toast('User suspended', 'success');
+  loadUsers(); loadDashboard();
+}
+async function deleteSingle(id) {
+  if (!await confirmDialog('Delete User?', 'All their requests, notifications will be removed.', { danger: true })) return;
+  const { data } = await sb.rpc('admin_delete_users', { p_token: state.token, p_user_ids: [id] });
+  if (data?.error) return toast(data.error, 'error');
+  toast('User deleted', 'success');
+  loadUsers(); loadDashboard();
+}
+
+function setChapterType(type) {
+  state.chapterType = type;
+  document.querySelectorAll('#chapterModal .type-opt').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+}
+async function loadChapters() {
+  const list = document.getElementById('chaptersList');
+  const { data, error } = await sb.from('chapters').select('*, subjects(name)').order('display_order', { ascending: true });
+  if (error || !data) { list.innerHTML = '<div class="empty">Failed to load</div>'; return; }
+  if (data.length === 0) { list.innerHTML = '<div class="empty"><i class="fas fa-layer-group"></i>No chapters yet</div>'; return; }
+  list.innerHTML = data.map((c, idx) => {
+    const isFrb = c.class_type === 'frb_2027';
+    const thumb = c.image_url || avatarSvg(c.chapter_name || 'C', 44);
+    return `
+      <div class="list-item">
+        <div style="display:flex;flex-direction:column;gap:4px;">
+          <button class="btn btn-outline btn-sm" style="padding:2px 6px;min-width:auto;" onclick="reorderChapter('${c.id}', 'up')" ${idx === 0 ? 'disabled' : ''}><i class="fas fa-arrow-up"></i></button>
+          <button class="btn btn-outline btn-sm" style="padding:2px 6px;min-width:auto;" onclick="reorderChapter('${c.id}', 'down')" ${idx === data.length - 1 ? 'disabled' : ''}><i class="fas fa-arrow-down"></i></button>
+        </div>
+        <img class="list-thumb" src="${escapeHtml(thumb)}" alt="" onerror="this.style.display='none'">
+        <div class="list-info">
+          <h4>${escapeHtml(c.chapter_name)} <span class="badge ${isFrb ? 'badge-frb' : 'badge-academic'}">${isFrb ? 'FRB' : 'Academic'}</span></h4>
+          <p>${escapeHtml(c.subjects?.name || 'Unknown Subject')} · ${c.is_published ? '<span style="color:var(--success)">Published</span>' : '<span style="color:var(--warning)">Draft</span>'}</p>
+        </div>
+        <div class="list-actions">
+          <button class="btn btn-outline btn-sm" onclick="editChapter('${c.id}')" title="Edit"><i class="fas fa-pen"></i></button>
+          <button class="btn btn-outline btn-sm" onclick="toggleChapterPublish('${c.id}', ${c.is_published})" title="Toggle"><i class="fas fa-${c.is_published ? 'eye-slash' : 'eye'}"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteChapter('${c.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function reorderChapter(id, dir) {
+  const { data: all } = await sb.from('chapters').select('id, display_order').order('display_order', { ascending: true });
+  if (!all) return;
+  const idx = all.findIndex(x => x.id === id);
+  if (idx === -1) return;
+  const swapIdx = dir === 'up' ? idx - 1 : idx + 1;
+  if (swapIdx < 0 || swapIdx >= all.length) return;
+  
+  const curr = all[idx];
+  const swap = all[swapIdx];
+  
+  await sb.from('chapters').update({ display_order: swap.display_order }).eq('id', curr.id);
+  await sb.from('chapters').update({ display_order: curr.display_order }).eq('id', swap.id);
+  loadChapters();
+}
+
+async function openChapterModal(id) {
+  state.chapImageUrl = null;
+  document.getElementById('chapterEditId').value = '';
+  document.getElementById('chapterModalTitle').textContent = 'Add New Chapter';
+  document.getElementById('chapName').value = '';
+  document.getElementById('chapDesc').value = '';
+  document.getElementById('chapOrder').value = '1';
+  document.getElementById('chapPublish').checked = true;
+  renderUploadZone('chap', null);
+  document.getElementById('chapterModal').classList.add('active');
+  if (state.subjects.length === 0) {
+    const { data } = await sb.from('subjects').select('*').order('display_order');
+    state.subjects = data || [];
+  }
+  document.getElementById('chapSubject').innerHTML = state.subjects.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+  setChapterType('academic');
+}
+async function editChapter(id) {
+  const { data: c } = await sb.from('chapters').select('*').eq('id', id).single();
+  if (!c) return toast('Chapter not found', 'error');
+  await openChapterModal();
+  document.getElementById('chapterEditId').value = c.id;
+  document.getElementById('chapterModalTitle').textContent = 'Edit Chapter';
+  setChapterType(c.class_type);
+  document.getElementById('chapSubject').value = c.subject_id;
+  document.getElementById('chapName').value = c.chapter_name || '';
+  document.getElementById('chapDesc').value = c.description || '';
+  document.getElementById('chapOrder').value = c.display_order || 1;
+  document.getElementById('chapPublish').checked = !!c.is_published;
+  state.chapImageUrl = c.image_url || null;
+  renderUploadZone('chap', state.chapImageUrl);
+}
+async function saveChapter(e) {
+  e.preventDefault();
+  const editId = document.getElementById('chapterEditId').value;
+  const payload = {
+    class_type: state.chapterType,
+    subject_id: document.getElementById('chapSubject').value,
+    chapter_name: document.getElementById('chapName').value.trim(),
+    description: document.getElementById('chapDesc').value.trim() || null,
+    display_order: parseInt(document.getElementById('chapOrder').value) || 0,
+    is_published: document.getElementById('chapPublish').checked,
+    image_url: state.chapImageUrl
+  };
+  const q = editId
+    ? sb.from('chapters').update(payload).eq('id', editId)
+    : sb.from('chapters').insert([payload]);
+  const { error } = await q;
+  if (error) return toast(error.message, 'error');
+  closeModal('chapterModal');
+  toast(editId ? 'Chapter updated!' : 'Chapter added!', 'success');
+  loadChapters();
+}
+async function toggleChapterPublish(id, current) {
+  const { error } = await sb.from('chapters').update({ is_published: !current }).eq('id', id);
+  if (error) return toast(error.message, 'error');
+  toast('Updated', 'success'); loadChapters();
+}
+async function deleteChapter(id) {
+  if (!await confirmDialog('Delete Chapter?', 'All classes inside will also be deleted!', { danger: true })) return;
+  const { error } = await sb.from('chapters').delete().eq('id', id);
+  if (error) return toast(error.message, 'error');
+  toast('Chapter deleted', 'success'); loadChapters();
+}
+
+function setClassType(type) {
+  state.classType = type;
+  document.querySelectorAll('#classModal .type-opt').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+  document.getElementById('chapFilterHint').textContent = `(${type === 'frb_2027' ? 'FRB-2027' : 'Academic'} only)`;
+  updateChapterDropdown();
+}
+function updateChapterDropdown() {
+  const select = document.getElementById('classChapter');
+  const filtered = state.chapters.filter(c => c.class_type === state.classType);
+  if (filtered.length === 0) { select.innerHTML = '<option value="">No chapters for this type</option>'; return; }
+  select.innerHTML = filtered.map(c => `<option value="${c.id}">${escapeHtml(c.chapter_name)}</option>`).join('');
+}
+async function openClassModal() {
+  document.getElementById('classModal').classList.add('active');
+  document.getElementById('classEditId').value = '';
+  document.getElementById('classModalTitle').textContent = 'Add New Class';
+  document.getElementById('classTitle').value = '';
+  document.getElementById('classDesc').value = '';
+  document.getElementById('classLink').value = '';
+  document.getElementById('classSlide').value = '';
+  document.getElementById('classPublish').checked = true;
+  
+  // সবসময় ফ্রেশ ডাটা লোড করা
+  const [chapRes, subjRes] = await Promise.all([
+    sb.from('chapters').select('*').eq('is_published', true),
+    sb.from('subjects').select('*').order('display_order')
+  ]);
+  state.chapters = chapRes.data || [];
+  state.subjects = subjRes.data || [];
+  
+  setClassType('academic');
+}
+async function editClass(id) {
+  const { data: c } = await sb.from('classes').select('*').eq('id', id).single();
+  if (!c) return toast('Class not found', 'error');
+  await openClassModal();
+  document.getElementById('classEditId').value = c.id;
+  document.getElementById('classModalTitle').textContent = 'Edit Class';
+  const chap = state.chapters.find(x => x.id === c.chapter_id);
+  if (chap) setClassType(chap.class_type);
+  document.getElementById('classChapter').value = c.chapter_id;
+  document.getElementById('classTitle').value = c.class_title || '';
+  document.getElementById('classDesc').value = c.description || '';
+  document.getElementById('classLink').value = c.class_link || '';
+  document.getElementById('classSlide').value = c.slide_url || '';
+  document.getElementById('classPublish').checked = !!c.is_published;
+}
+async function loadClasses() {
+  const list = document.getElementById('classesList');
+  const { data, error } = await sb.from('classes').select('*, chapters(chapter_name, class_type)').order('created_at', { ascending: false });
+  if (error || !data) { list.innerHTML = '<div class="empty">Failed to load</div>'; return; }
+  if (data.length === 0) { list.innerHTML = '<div class="empty"><i class="fas fa-video"></i>No classes yet</div>'; return; }
+  list.innerHTML = data.map(c => {
+    const isFrb = c.chapters?.class_type === 'frb_2027';
+    return `
+      <div class="list-item">
+        <div class="list-info">
+          <h4>${escapeHtml(c.class_title)}</h4>
+          <p>${escapeHtml(c.chapters?.chapter_name || 'Unknown')} <span class="badge ${isFrb ? 'badge-frb' : 'badge-academic'}">${isFrb ? 'FRB' : 'Academic'}</span></p>
+          <p style="margin-top:10px;font-size:15px;">
+            ${c.class_link ? '<span style="color:var(--accent-1);"><i class="fab fa-youtube"></i> Video</span>' : ''}
+            ${c.slide_url ? ' <span style="color:var(--success)"><i class="fas fa-file-pdf"></i> Slide</span>' : ''}
+            ${c.is_published ? ' · Published' : ' · Draft'}
+          </p>
+        </div>
+        <div class="list-actions">
+          <button class="btn btn-outline btn-sm" onclick="editClass('${c.id}')" title="Edit"><i class="fas fa-pen"></i></button>
+          <button class="btn btn-outline btn-sm" onclick="toggleClassPublish('${c.id}', ${c.is_published})"><i class="fas fa-${c.is_published ? 'eye-slash' : 'eye'}"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteClass('${c.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+async function saveClass(e) {
+  e.preventDefault();
+  const editId = document.getElementById('classEditId').value;
+  const payload = {
+    chapter_id: document.getElementById('classChapter').value,
+    class_title: document.getElementById('classTitle').value.trim(),
+    description: document.getElementById('classDesc').value.trim() || null,
+    class_link: document.getElementById('classLink').value.trim() || null,
+    slide_url: document.getElementById('classSlide').value.trim() || null,
+    is_published: document.getElementById('classPublish').checked
+  };
+  if (!payload.chapter_id) return toast('Select a chapter', 'error');
+  if (!payload.class_link && !payload.slide_url) return toast('At least one link required', 'error');
+  
+  const q = editId
+    ? sb.from('classes').update(payload).eq('id', editId)
+    : sb.from('classes').insert([payload]);
+    
+  const { error } = await q;
+  if (error) return toast(error.message, 'error');
+  closeModal('classModal');
+  toast(editId ? 'Class updated!' : 'Class added!', 'success'); 
+  loadClasses();
+}
+async function toggleClassPublish(id, current) {
+  const { error } = await sb.from('classes').update({ is_published: !current }).eq('id', id);
+  if (error) return toast(error.message, 'error');
+  toast('Updated', 'success'); loadClasses();
+}
+async function deleteClass(id) {
+  if (!await confirmDialog('Delete Class?', 'This cannot be undone.', { danger: true })) return;
+  const { error } = await sb.from('classes').delete().eq('id', id);
+  if (error) return toast(error.message, 'error');
+  toast('Class deleted', 'success'); loadClasses();
+}
+
+async function loadGuides() {
+  const list = document.getElementById('guidesList');
+  const { data, error } = await sb.from('guides').select('*, subjects(name)');
+  if (error || !data) { list.innerHTML = '<div class="empty">Failed to load</div>'; return; }
+  if (data.length === 0) { list.innerHTML = '<div class="empty"><i class="fas fa-book"></i>No guides yet</div>'; return; }
+  list.innerHTML = data.map(g => {
+    const thumb = g.image_url || avatarSvg(g.guide_name || 'G', 44);
+    return `
+      <div class="list-item">
+        <img class="list-thumb" src="${escapeHtml(thumb)}" alt="" onerror="this.style.display='none'">
+        <div class="list-info">
+          <h4>${escapeHtml(g.guide_name)}</h4>
+          <p>${escapeHtml(g.subjects?.name || 'Unknown')} · ${g.is_published ? 'Published' : 'Draft'}</p>
+        </div>
+        <div class="list-actions">
+          <button class="btn btn-outline btn-sm" onclick="editGuide('${g.id}')"><i class="fas fa-pen"></i></button>
+          <button class="btn btn-outline btn-sm" onclick="toggleGuidePublish('${g.id}', ${g.is_published})"><i class="fas fa-${g.is_published ? 'eye-slash' : 'eye'}"></i></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteGuide('${g.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+async function openGuideModal(id) {
+  state.guideImageUrl = null;
+  document.getElementById('guideEditId').value = '';
+  document.getElementById('guideModalTitle').textContent = 'Add New Guide Book';
+  document.getElementById('guideName').value = '';
+  document.getElementById('guideDesc').value = '';
+  document.getElementById('guideUrl').value = '';
+  document.getElementById('guidePublish').checked = true;
+  renderUploadZone('guide', null);
+  document.getElementById('guideModal').classList.add('active');
+  if (state.subjects.length === 0) {
+    const { data } = await sb.from('subjects').select('*').order('display_order');
+    state.subjects = data || [];
+  }
+  document.getElementById('guideSubject').innerHTML = state.subjects.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+}
+async function editGuide(id) {
+  const { data: g } = await sb.from('guides').select('*').eq('id', id).single();
+  if (!g) return toast('Guide not found', 'error');
+  await openGuideModal();
+  document.getElementById('guideEditId').value = g.id;
+  document.getElementById('guideModalTitle').textContent = 'Edit Guide';
+  document.getElementById('guideSubject').value = g.subject_id;
+  document.getElementById('guideName').value = g.guide_name || '';
+  document.getElementById('guideDesc').value = g.description || '';
+  document.getElementById('guideUrl').value = g.guide_url || '';
+  document.getElementById('guidePublish').checked = !!g.is_published;
+  state.guideImageUrl = g.image_url || null;
+  renderUploadZone('guide', state.guideImageUrl);
+}
+async function saveGuide(e) {
+  e.preventDefault();
+  const editId = document.getElementById('guideEditId').value;
+  const payload = {
+    subject_id: document.getElementById('guideSubject').value,
+    guide_name: document.getElementById('guideName').value.trim(),
+    description: document.getElementById('guideDesc').value.trim() || null,
+    guide_url: document.getElementById('guideUrl').value.trim(),
+    is_published: document.getElementById('guidePublish').checked,
+    image_url: state.guideImageUrl
+  };
+  const q = editId
+    ? sb.from('guides').update(payload).eq('id', editId)
+    : sb.from('guides').insert([payload]);
+  const { error } = await q;
+  if (error) return toast(error.message, 'error');
+  closeModal('guideModal');
+  toast(editId ? 'Guide updated!' : 'Guide added!', 'success');
+  loadGuides();
+}
+async function toggleGuidePublish(id, current) {
+  const { error } = await sb.from('guides').update({ is_published: !current }).eq('id', id);
+  if (error) return toast(error.message, 'error');
+  loadGuides();
+}
+async function deleteGuide(id) {
+  if (!await confirmDialog('Delete Guide?', 'This cannot be undone.', { danger: true })) return;
+  const { error } = await sb.from('guides').delete().eq('id', id);
+  if (error) return toast(error.message, 'error');
+  toast('Guide deleted', 'success'); loadGuides();
+}
+
+async function loadRequests() {
+  const list = document.getElementById('requestsList');
+  list.innerHTML = '<div class="skel">Loading...</div>';
+  const { data, error } = await sb.rpc('admin_list_requests', { p_token: state.token });
+  if (error || data?.error) { list.innerHTML = '<div class="empty"><i class="fas fa-exclamation-triangle"></i>Failed to load requests</div>'; return; }
+  const reqs = Array.isArray(data) ? data : [];
+  if (reqs.length === 0) { list.innerHTML = '<div class="empty"><i class="fas fa-inbox"></i>No requests yet</div>'; return; }
+  list.innerHTML = reqs.map(r => {
+    const sc = r.status === 'resolved' ? 'badge-approved' : r.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
+    return `
+      <div class="list-item">
+        <div class="list-info">
+          <h4>[${escapeHtml((r.request_type || '').toUpperCase())}] ${escapeHtml(r.subject_name || '')} <span class="badge ${sc}">${escapeHtml(r.status)}</span></h4>
+          <p><strong>By:</strong> ${escapeHtml(r.user_name || 'Unknown')} <span style="color:var(--text-2)">(${escapeHtml(r.user_email || '')})</span></p>
+          <p style="margin-top:4px">${escapeHtml(r.description || 'No description')}</p>
+          <p style="margin-top:4px;font-size:11.5px;color:var(--text-2)">${new Date(r.created_at).toLocaleString()}</p>
+        </div>
+        <div class="list-actions">
+          ${r.status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="resolveRequest('${r.id}')"><i class="fas fa-check"></i> Resolve</button>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+async function resolveRequest(id) {
+  const response = await promptDialog('Resolve Request', 'Optional admin note (leave empty to skip):', 'Write a response...');
+  if (response === null) return;
+  const { data } = await sb.rpc('admin_resolve_request', { p_token: state.token, p_request_id: id, p_response: response || null });
+  if (data?.error) return toast(data.error, 'error');
+  toast('Request resolved', 'success');
+  loadRequests(); loadDashboard();
+}
+
+async function loadReports() {
+  const list = document.getElementById('reportsList');
+  list.innerHTML = '<div class="skel">Loading...</div>';
+  const { data, error } = await sb.rpc('admin_list_reports', { p_token: state.token });
+  if (error || data?.error) { list.innerHTML = '<div class="empty"><i class="fas fa-exclamation-triangle"></i>Failed to load reports</div>'; return; }
+  const reqs = Array.isArray(data) ? data : [];
+  if (reqs.length === 0) { list.innerHTML = '<div class="empty"><i class="fas fa-flag"></i>No content reports yet</div>'; return; }
+  list.innerHTML = reqs.map(r => {
+    const sc = r.status === 'resolved' ? 'badge-approved' : 'badge-pending';
+    return `
+      <div class="list-item">
+        <div class="list-info">
+          <h4><span class="badge ${sc}">${escapeHtml(r.status)}</span> - ${escapeHtml(r.report_type)}</h4>
+          <p><strong>By:</strong> ${escapeHtml(r.user_name || 'Unknown')} (${escapeHtml(r.user_email || '')})</p>
+          <p style="margin-top:4px"><strong>Issue:</strong> ${escapeHtml(r.description || 'No description')}</p>
+          ${r.class_title ? `<p style="margin-top:4px;color:var(--accent-1)">Class: ${escapeHtml(r.class_title)}</p>` : ''}
+          ${r.guide_name ? `<p style="margin-top:4px;color:var(--accent-2)">Guide: ${escapeHtml(r.guide_name)}</p>` : ''}
+          ${r.admin_response ? `<p style="margin-top:4px;color:var(--success)">Response: ${escapeHtml(r.admin_response)}</p>` : ''}
+          <p style="margin-top:4px;font-size:11.5px;color:var(--text-2)">${new Date(r.created_at).toLocaleString()}</p>
+        </div>
+        <div class="list-actions">
+          ${r.status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="resolveReport('${r.id}')"><i class="fas fa-check"></i> Resolve</button>` : ''}
+          <button class="btn btn-danger btn-sm" onclick="deleteReport('${r.id}')"><i class="fas fa-trash"></i> Delete</button>
+        </div>
+      </div>`;
+  }).join('');
+}
+async function resolveReport(id) {
+  const response = await promptDialog('Resolve Report', 'Optional admin note:', 'Write action taken...');
+  if (response === null) return;
+  const { data } = await sb.rpc('admin_resolve_report', { p_token: state.token, p_report_id: id, p_response: response || null });
+  if (data?.error) return toast(data.error, 'error');
+  toast('Report resolved', 'success');
+  loadReports();
+}
+
+async function deleteReport(id) {
+  if (!await confirmDialog('Delete Content Report?', 'This report will be permanently deleted. This action cannot be undone.', { danger: true })) return;
+  const { data, error } = await sb.rpc('admin_delete_report', { p_token: state.token, p_report_id: id });
+  if (error || data?.error) return toast(data?.error || error?.message || 'Failed to delete report', 'error');
+  toast('Report deleted', 'success');
+  await loadReports();
+}
+
+async function loadActivityLogs() {
+  const list = document.getElementById('activityList');
+  list.innerHTML = '<div class="skel">Loading...</div>';
+  const { data, error } = await sb.rpc('admin_list_activity_logs', { p_token: state.token });
+  if (error || data?.error) { list.innerHTML = '<div class="empty"><i class="fas fa-exclamation-triangle"></i>Failed to load logs</div>'; return; }
+  const logs = Array.isArray(data) ? data : [];
+  if (logs.length === 0) { list.innerHTML = '<div class="empty"><i class="fas fa-clipboard-list"></i>No activity logs yet</div>'; return; }
+  list.innerHTML = logs.map(l => `
+    <div class="list-item">
+      <div class="list-info">
+        <h4><i class="fas fa-circle-info" style="color:var(--accent-1);font-size:12px"></i> ${escapeHtml(l.action)}</h4>
+        <p><strong>${escapeHtml(l.user_name || 'Unknown User')}</strong> (${escapeHtml(l.user_email || '')})</p>
+        <p style="margin-top:4px;color:var(--text-2);font-size:12px">${escapeHtml(l.details || '')}</p>
+      </div>
+      <div class="list-actions" style="align-items:center">
+        <span style="font-size:11px;color:var(--text-2);white-space:nowrap">${new Date(l.created_at).toLocaleString()}</span>
+        <button class="btn btn-danger btn-sm" onclick="deleteActivityLog('${l.id}')"><i class="fas fa-trash"></i> Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function deleteActivityLog(id) {
+  if (!await confirmDialog('Delete Activity Log?', 'This log entry will be permanently deleted. This action cannot be undone.', { danger: true })) return;
+  const { data, error } = await sb.rpc('admin_delete_activity_log', { p_token: state.token, p_log_id: id });
+  if (error || data?.error) return toast(data?.error || error?.message || 'Failed to delete activity log', 'error');
+  toast('Activity log deleted', 'success');
+  await loadActivityLogs();
+}
+
+async function loadAnnouncements() {
+  const list = document.getElementById('announcementList');
+  const { data, error } = await sb.rpc('admin_list_announcements', { p_token: state.token });
+  if (error || data?.error) { list.innerHTML = '<div class="empty">Failed to load</div>'; return; }
+  const anns = Array.isArray(data) ? data : [];
+  if (anns.length === 0) { list.innerHTML = '<div class="empty"><i class="fas fa-bullhorn"></i>No announcements yet</div>'; return; }
+  list.innerHTML = anns.map(a => `
+    <div class="list-item">
+      <div class="list-info">
+        <h4>${escapeHtml(a.title)} ${a.is_active ? '<span class="badge badge-approved">Active</span>' : '<span class="badge badge-pending">Inactive</span>'}</h4>
+        <p>${escapeHtml(a.content || '')}</p>
+        <p style="margin-top:4px;font-size:11.5px;color:var(--text-2)">${new Date(a.created_at).toLocaleString()}</p>
+      </div>
+      <div class="list-actions">
+        <button class="btn btn-outline btn-sm" onclick="editAnnouncement('${a.id}')"><i class="fas fa-pen"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="deleteAnnouncement('${a.id}')"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openAnnouncementModal() {
+  document.getElementById('annEditId').value = '';
+  document.getElementById('announcementModalTitle').textContent = 'New Announcement';
+  document.getElementById('annTitle').value = '';
+  document.getElementById('annContent').value = '';
+  document.getElementById('annType').value = 'info';
+  document.getElementById('annActive').checked = true;
+  document.getElementById('announcementModal').classList.add('active');
+}
+
+async function editAnnouncement(id) {
+  const { data } = await sb.rpc('admin_list_announcements', { p_token: state.token });
+  const a = data?.find(x => x.id === id);
+  if (!a) return toast('Not found', 'error');
+  document.getElementById('annEditId').value = a.id;
+  document.getElementById('announcementModalTitle').textContent = 'Edit Announcement';
+  document.getElementById('annTitle').value = a.title;
+  document.getElementById('annContent').value = a.content || '';
+  document.getElementById('annType').value = a.type || 'info';
+  document.getElementById('annActive').checked = !!a.is_active;
+  document.getElementById('announcementModal').classList.add('active');
+}
+
+async function saveAnnouncement(e) {
+  e.preventDefault();
+  const id = document.getElementById('annEditId').value || null;
+  const title = document.getElementById('annTitle').value.trim();
+  const content = document.getElementById('annContent').value.trim();
+  const type = document.getElementById('annType').value;
+  const active = document.getElementById('annActive').checked;
+  
+  const { data } = await sb.rpc('admin_upsert_announcement', {
+    p_token: state.token, p_id: id, p_title: title, p_content: content, p_type: type, p_active: active
+  });
+  if (data?.error) return toast(data.error, 'error');
+  closeModal('announcementModal');
+  toast(id ? 'Updated!' : 'Created!', 'success');
+  loadAnnouncements();
+}
+
+async function deleteAnnouncement(id) {
+  if (!await confirmDialog('Delete Announcement?', 'This cannot be undone.', { danger: true })) return;
+  const { data } = await sb.rpc('admin_delete_announcement', { p_token: state.token, p_id: id });
+  if (data?.error) return toast(data.error, 'error');
+  toast('Deleted', 'success');
+  loadAnnouncements();
+}
+
+async function loadSettings() {
+  const { data, error } = await sb.rpc('admin_get_settings', { p_token: state.token });
+  if (error || data?.error) return toast('Failed to load settings', 'error');
+  document.getElementById('setSiteName').value = data.site_name || '';
+  document.getElementById('setRegEnabled').value = data.registration_enabled || 'true';
+  document.getElementById('setMaintMode').value = data.maintenance_mode || 'false';
+  document.getElementById('setContactPhone').value = data.contact_phone || '';
+  document.getElementById('setContactEmail').value = data.contact_email || '';
+  document.getElementById('setContactAddress').value = data.contact_address || '';
+  document.getElementById('setFacebookUrl').value = data.facebook_url || '';
+}
+
+async function saveSettings(e) {
+  e.preventDefault();
+  const settings = {
+    site_name: document.getElementById('setSiteName').value.trim(),
+    registration_enabled: document.getElementById('setRegEnabled').value,
+    maintenance_mode: document.getElementById('setMaintMode').value,
+    contact_phone: document.getElementById('setContactPhone').value.trim(),
+    contact_email: document.getElementById('setContactEmail').value.trim(),
+    contact_address: document.getElementById('setContactAddress').value.trim(),
+    facebook_url: document.getElementById('setFacebookUrl').value.trim()
+  };
+  const { data } = await sb.rpc('admin_update_settings', { p_token: state.token, p_settings: settings });
+  if (data?.error) return toast(data.error, 'error');
+  toast('Settings saved!', 'success');
+}
+
+async function loadNotifyUsers() {
+  const { data } = await sb.rpc('admin_list_users', { p_token: state.token });
+  const users = (Array.isArray(data) ? data : []).filter(u => u.is_approved);
+  const sel = document.getElementById('notifUserSelect');
+  sel.innerHTML = users.length === 0
+    ? '<option value="">No approved users</option>'
+    : users.map(u => `<option value="${u.id}">${escapeHtml(u.full_name)} (${escapeHtml(u.email)})</option>`).join('');
+}
+function onNotifRecipientChange() {
+  const v = document.getElementById('notifRecipient').value;
+  document.getElementById('notifUserGroup').classList.toggle('hidden', v !== 'specific');
+}
+async function sendNotification(e) {
+  e.preventDefault();
+  const recipient = document.getElementById('notifRecipient').value;
+  const userId = recipient === 'specific' ? document.getElementById('notifUserSelect').value : null;
+  const title = document.getElementById('notifTitle').value.trim();
+  const message = document.getElementById('notifMessage').value.trim();
+  const type = document.getElementById('notifType').value;
+  if (!title) return toast('Title required', 'error');
+  if (recipient === 'specific' && !userId) return toast('Select a user', 'error');
+
+  const { data, error } = await sb.rpc('admin_send_notification', {
+    p_token: state.token, p_user_id: userId, p_title: title, p_message: message || null, p_type: type
+  });
+  if (error || data?.error) return toast(data?.error || error?.message || 'Failed', 'error');
+  toast(`Notification sent to ${data.count} user(s)!`, 'success');
+  document.getElementById('notifTitle').value = '';
+  document.getElementById('notifMessage').value = '';
+}
+
+window.addEventListener('load', async () => {
+  const ok = await verifyAdmin();
+  if (!ok) return;
+  const cur = document.documentElement.getAttribute('data-theme');
+  document.getElementById('themeIcon').className = cur === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+  document.querySelectorAll('.sb-item').forEach(el => {
+    el.addEventListener('click', () => switchPage(el.dataset.page));
+  });
+  const [subjRes, chapRes] = await Promise.all([
+    sb.from('subjects').select('*').order('display_order'),
+    sb.from('chapters').select('*')
+  ]);
+  state.subjects = subjRes.data || [];
+  state.chapters = chapRes.data || [];
+  switchPage('dashboard');
+});
+
+Object.assign(window, {
+  switchPage, closeModal, closeDialog, toggleTheme, handleLogout,
+  approveUser, holdUser, rejectUser, loadSignupRequests,
+  loadUsers, filterUsers, toggleUserSelect, toggleSelectAllUsers, clearSelection,
+  bulkAction, suspendSingle, deleteSingle,
+  loadChapters, openChapterModal, editChapter, saveChapter, setChapterType, toggleChapterPublish, deleteChapter, reorderChapter,
+  openClassModal, editClass, saveClass, setClassType, toggleClassPublish, deleteClass,
+  openGuideModal, editGuide, saveGuide, toggleGuidePublish, deleteGuide,
+  loadRequests, resolveRequest, loadReports, resolveReport, deleteReport, loadActivityLogs, deleteActivityLog,
+  openAnnouncementModal, editAnnouncement, saveAnnouncement, deleteAnnouncement,
+  loadSettings, saveSettings, loadNotifyUsers, onNotifRecipientChange, sendNotification,
+  handleImageFile, handleImageDrop
+});
+</script>
+</body>
+</html>
